@@ -37,7 +37,8 @@ class lexer():
     tokens = []
 
     while self.current_char != "EOF":
-      if (self.current_char == "-" and self.peek().isdigit()) and (tokens[-1].type == "OP" or len(tokens) == 0):
+      #print(self.current_char)
+      if (self.current_char == "-" and self.peek().isdigit()) and (len(tokens) == 0 or tokens[-1].type == "OP"):
         #accounts for cases like 2+-3
         self.current_char = self.get_next_char()
         current_num = int(self.current_char)
@@ -48,7 +49,7 @@ class lexer():
 
           current_num = current_num * 10 + int(self.current_char)
         tokens.append(Token("INT", -current_num))
-      if self.current_char.isdigit():
+      elif self.current_char.isdigit():
         #i have encounterd a number, start creating a new num
         current_num = int(self.current_char)
 
@@ -186,6 +187,7 @@ if __name__ == "__main__":
       break
     new_lexer = lexer(text)
     tokens = new_lexer.tokenize()
+
     #print(tokens)
     interp = Interpreter(tokens)
     print(interp.expr())
