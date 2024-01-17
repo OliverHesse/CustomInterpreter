@@ -65,7 +65,7 @@ class lexer():
       if self.current_char == "(":
         tokens.append(Token("OpenBracket", self.current_char))
       if self.current_char == ")":
-        tokens.append(Token("CloseBracket", self.current_char))
+        tokens.append(Token("ClosedBracket", self.current_char))
 
       self.current_char = self.get_next_char()
 
