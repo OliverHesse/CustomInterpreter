@@ -51,7 +51,8 @@ class Lexer():
         #found a general character will either be a variable or a function
         #end will either be an open bracket or an operator 
         current_value = self.current_char
-        while self.peek() != "(" and self.peek() not in op_dic and self.peek() != "EOF":
+        invalid_characters = {"(",")","EOF"}
+        while self.peek() not in invalid_characters and self.peek() not in op_dic :
           self.current_char = self.get_next_char()
           current_value += self.current_char
         if self.peek() == "(":
