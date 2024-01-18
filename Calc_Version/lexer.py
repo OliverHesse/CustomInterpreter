@@ -82,12 +82,13 @@ class Lexer():
     return tokens
   
 class Interpreter():
-  def __init__(self,tokens,function_map,variable_map):
+  def __init__(self,tokens,function_map,variable_map,show = False):
     self.tokens = tokens
     self.pos = 0
     self.current_token = tokens[0]
     self.function_map = function_map
     self.variable_map = variable_map
+    self.show = show
   def err(self, msg):
     raise Exception(msg)
 
@@ -134,7 +135,7 @@ class Interpreter():
         self.pos = current_pos
         self.current_token = self.tokens[self.pos]
         self.pos = current_pos
-        num = self.calculate()
+        num = self.calculate(self.show)
         if self.current_token.type != "EOF":
           self.current_token = self.get_next_token()
         print(num)
@@ -195,7 +196,7 @@ class Interpreter():
       self.err("expecting function or variable declaration")
     
       
-  def calculate(self):
+  def calculate(self,show = False):
 
     total = 0
     nums = []
@@ -210,7 +211,8 @@ class Interpreter():
       self.err(
           f"Unexpected token at {self.pos} found {self.current_token} expected INT"
       )
-    
+    #for if the -show flag is provided
+    reset_pos = self.pos
     while self.current_token.type != "EOF" and self.current_token.type != "EOL":
 
       if self.current_token.type == "Function":
@@ -318,5 +320,15 @@ class Interpreter():
           count -= 1
 
         count += 1
+    expr_string = ""
+    
+    if show == True:
+      self.pos = reset_pos
+      self.current_token = self.tokens[self.pos]
+      while self.current_token.type != "EOF" and self.current_token.type != "EOL":
+        
+        expr_string += str(self.current_token.value)
+        self.current_token = self.get_next_token()
 
+      return f"{expr_string} = {nums[0]}"
     return nums[0]
