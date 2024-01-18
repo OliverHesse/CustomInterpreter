@@ -39,6 +39,7 @@ class Lexer():
           num += self.current_char
        
         tokens.append(Token("INT",int(num)))
+      
       elif self.current_char in op_dic:
         #this is an operator
         tokens.append(Token("OP", self.current_char))
@@ -99,18 +100,34 @@ class CalculatorInterpreter():
       self.err(
           f"Unexpected token at {self.pos} found {self.current_token} expected INT"
       )
+    
     while self.current_token.type != "EOF":
       if self.current_token.type == "Function":
         function_name = self.current_token.value
         if self.peek().type != "OpenBracket":
           self.err(f"Unexpected token at {self.pos} expected (")
         parameters = []
+        self.current_token = self.get_next_token()
         while self.current_token.type != "ClosedBracket":
+          #skips the open bracket
           
           self.current_token = self.get_next_token()
-          #does not allow for function parameters yet
-          if self.current_token.type == "INT":
-            parameters.append(self.current_token.value)
+          current_expr = []
+          open_brackets_found = 1
+          while (self.current_token.type != "Separator" or open_brackets_found > 1) and open_brackets_found != 0:
+            if self.current_token.type == "OpenBracket":
+              open_brackets_found += 1
+            if self.current_token.type == "ClosedBracket":
+              open_brackets_found -= 1
+              if open_brackets_found == 0:
+                break
+            current_expr.append(self.current_token)
+            self.current_token = self.get_next_token()
+         
+          #create new interp object to evaluate
+          current_expr.append(Token("EOF",None))
+          parameters.append(CalculatorInterpreter(current_expr,self.function_map).calculate())
+          
         #now i need to map parameters to variables
         function_tokens = self.function_map[function_name]["tokens"]
         
@@ -134,7 +151,6 @@ class CalculatorInterpreter():
         ops.append(self.current_token.value)
       elif self.current_token.type == "OpenBracket":
         
-        new_tokens = []
         number_of_open = 1
         
         while number_of_open != 0:
@@ -364,9 +380,8 @@ def inputFunction():
   functions_map[function_name] = {"variables":variables,"tokens":new_func}
   return 0    
 if __name__ == "__main__":
-  test_input = "2-3+-2/4+x-sin(4)"
-  test_lexer = Lexer(test_input)
-  print(test_lexer.tokenize())
+  
+
   mainLoop()
   
   while True:
